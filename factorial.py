@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 
 # Python program to find the factorial of a number using recursion
 import sys
@@ -18,11 +18,11 @@ def main():
         num = int(num)
     # check is the number is negative
         if num < 0:
-            print("Sorry, factorial does not exist for negative numbers")
+            print "Sorry, factorial does not exist for negative numbers"
         elif num == 0:
-            print("The factorial of 0 is 1")
+            print "The factorial of 0 is 1"
         else:
-            print("The factorial of:",num," is:",recur_factorial(num))
+            print "The factorial of:",num," is:",recur_factorial(num)
     else:
         sys.exit("Not enough arguments")
 
