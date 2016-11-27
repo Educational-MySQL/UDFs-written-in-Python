@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     command += argv[1];
     
     FILE * in = popen(command.c_str(), "r");
-    char buf[10];
+    char buf[100];
     fread(buf, 100, 1, in);
     pclose(in);
     
