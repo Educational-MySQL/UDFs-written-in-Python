@@ -4,29 +4,94 @@
 #include <string.h>
 #include <iostream>
 
-using namespace std;
+#include <my_global.h>
+#include <my_sys.h>
+
+#include <new>
+#include <vector>
+#include <algorithm>
+
+#if defined(MYSQL_SERVER)
+#include <m_string.h>		/* To get my_stpcpy() */
+#else
+/* when compiled as standalone */
+#include <string.h>
+#define my_stpcpy(a,b) stpcpy(a,b)
+#endif
+
+#include <mysql.h>
+#include <ctype.h>
+
+#ifdef _WIN32
+/* inet_aton needs winsock library */
+#pragma comment(lib, "ws2_32")
+#endif
+
+#ifdef HAVE_DLOPEN
+
+#if !defined(HAVE_GETHOSTBYADDR_R) || !defined(HAVE_SOLARIS_STYLE_GETHOST)
+static native_mutex_t LOCK_hostname;
+#endif
+
+C_MODE_START;
+
+my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message);
+ void factorial_deinit(UDF_INIT *initid);
+longlong factorial(UDF_INIT *initid, UDF_ARGS *args, char *is_null,
+		   char *error);
+
+C_MODE_END;
+
+
 
 /*
  * 
  */
-int main(int argc, char** argv) {
-    
-    if(argc != 2) {
-        printf("Argument count is wrong");
-        return EXIT_FAILURE;
-    }
-    
-    std::string command("python factorial.py");
-    
-    command += " ";
-    command += argv[1];
-    
-    FILE * in = popen(command.c_str(), "r");
-    char buf[100];
-    fread(buf, 100, 1, in);
-    pclose(in);
-    
-    std::cout << buf << std::endl;
 
-    return 0;
+my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
+{
+  if (args->arg_count > 1)
+  {
+    my_stpcpy(message,"This function takes 1 argument");
+    return 1;
+  }
+  if (args->arg_count)
+    args->arg_type[0]= INT_RESULT;		/* Force argument to int */
+
+  if (!(initid->ptr=(char*) malloc(sizeof(longlong))))
+  {
+    my_stpcpy(message,"Couldn't allocate memory");
+    return 1;
+  }
+  memset(initid->ptr, 0, sizeof(longlong));
+ 
+  initid->const_item=0;
+  return 0;
 }
+
+void factorial_deinit(UDF_INIT *initid)
+{
+  if (initid->ptr)
+    free(initid->ptr);
+}
+
+longlong factorial(UDF_INIT *initid MY_ATTRIBUTE((unused)), UDF_ARGS *args,
+                  char *is_null MY_ATTRIBUTE((unused)),
+                  char *error MY_ATTRIBUTE((unused)))
+{
+  ulonglong val=0;
+  if (args->arg_count)
+    val= *((longlong*) args->args[0]);
+
+  std::string command("python factorial.py");
+    
+  command += " ";
+  command += val;
+  FILE * in = popen(command.c_str(), "r");
+  fread(initid->ptr, 100, 1, in);
+  pclose(in);
+
+  return (longlong)initid->ptr;  
+}
+
+#endif
