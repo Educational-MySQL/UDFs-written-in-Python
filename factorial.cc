@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <stdlib.h>
-#include <stdio.h>
+#include <cstdio>
 #include <string.h>
 #include <iostream>
 
@@ -81,17 +81,27 @@ longlong factorial(UDF_INIT *initid MY_ATTRIBUTE((unused)), UDF_ARGS *args,
 {
   ulonglong val=0;
   if (args->arg_count)
+  {
     val= *((longlong*) args->args[0]);
+    fprintf(stderr, "Value of args->args[0] -> %lld\n", val);
 
-  std::string command("python factorial.py");
-    
-  command += " ";
-  command += val;
+    std::string command("python /home/sh/REPOS/MYSQL_DEV_ACTIONS/mysql-5.7/mysql-server/5.7.16/lib/plugin/factorial.py");
+
+  char str[10];
+  sprintf(str, "%lld", val);
+  command.append(" ");
+  command.append(str);
+  
+  fprintf(stderr, "Value of command.c_str() -> %s\n", command.c_str());
   FILE * in = popen(command.c_str(), "r");
   fread(initid->ptr, 100, 1, in);
   pclose(in);
+  fprintf(stderr, "Value of ptr -> %lld", *((longlong*)initid->ptr));
+  return *((longlong*)initid->ptr);
+  }
 
-  return (longlong)initid->ptr;  
+  //return (longlong)initid->ptr;
+    
 }
 
 #endif
