@@ -3,6 +3,9 @@
 #include <cstdio>
 #include <string.h>
 #include <iostream>
+#include <memory>
+#include <stdexcept>
+
 
 #include <my_global.h>
 #include <my_sys.h>
@@ -50,11 +53,19 @@ C_MODE_END;
 
 my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
 {
+  
   if (args->arg_count > 1)
   {
     my_stpcpy(message,"This function takes 1 argument");
     return 1;
   }
+
+  if (*((longlong*)args->args[0]) < 0)
+  {
+    my_stpcpy(message,"Negative number passed");
+    return 1;
+  }
+
   if (args->arg_count)
     args->arg_type[0]= INT_RESULT;		/* Force argument to int */
 
@@ -82,26 +93,36 @@ longlong factorial(UDF_INIT *initid MY_ATTRIBUTE((unused)), UDF_ARGS *args,
   ulonglong val=0;
   if (args->arg_count)
   {
-    val= *((longlong*) args->args[0]);
-    fprintf(stderr, "Value of args->args[0] -> %lld\n", val);
+      
+      val= *((longlong*) args->args[0]);
+      //fprintf(stderr, "Value of args->args[0] -> %s\n", args->args[0]);
+      //fprintf(stderr, "Value of args->args[0] -> %lld\n", val);
+    
+      
 
-    std::string command("python /home/sh/REPOS/MYSQL_DEV_ACTIONS/mysql-5.7/mysql-server/5.7.16/lib/plugin/factorial.py");
+      std::string command("python /home/sh/REPOS/MYSQL_DEV_ACTIONS/mysql-5.7/mysql-server/5.7.16/lib/plugin/factorial.py");
 
-  char str[10];
-  sprintf(str, "%lld", val);
-  command.append(" ");
-  command.append(str);
-  
-  fprintf(stderr, "Value of command.c_str() -> %s\n", command.c_str());
-  FILE * in = popen(command.c_str(), "r");
-  fread(initid->ptr, 100, 1, in);
-  pclose(in);
-  fprintf(stderr, "Value of ptr -> %lld", *((longlong*)initid->ptr));
-  return *((longlong*)initid->ptr);
+      char str[10];
+      sprintf(str, "%lld", val);
+      command.append(" ");
+      command.append(str);
+    
+      //fprintf(stderr, "Value of command.c_str() -> %s\n", command.c_str());
+
+      std::string result = "";
+      std::shared_ptr<FILE> pipe(popen(command.c_str(), "r"), pclose);
+      while (!feof(pipe.get())) {
+          if (fgets(initid->ptr, 128, pipe.get()) != NULL)
+              result += initid->ptr;
+      }
+    
+      //fprintf(stderr, "The Result -> %s\n", result.c_str());
+    
+      std::string::size_type sz;
+      return std::stol(result, &sz);
+    }
   }
 
   //return (longlong)initid->ptr;
-    
-}
 
 #endif

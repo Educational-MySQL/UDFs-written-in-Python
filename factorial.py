@@ -18,12 +18,14 @@ def main():
         num = int(num)
     # check is the number is negative
         if num < 0:
-            sys.exit("Negative number passed")
+            sys.stdout.write("Negative number passed")
         elif num == 0:
-            sys.exit("The factorial of 0 is 1")
+            sys.stdout.write(str(1))
         else:
-            retnum = recur_factorial(num);
-            return retnum    
+            retnum = recur_factorial(num)
+            sys.stdout.write(str(retnum))
+            
+            
     else:
         sys.exit("Not enough arguments")
 
