@@ -30,6 +30,8 @@
 #pragma comment(lib, "ws2_32")
 #endif
 
+#include <limits.h>
+
 #ifdef HAVE_DLOPEN
 
 #if !defined(HAVE_GETHOSTBYADDR_R) || !defined(HAVE_SOLARIS_STYLE_GETHOST)
@@ -63,6 +65,11 @@ my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
   {
      strcpy(message,"factorial() requires an integer");
      return 1;
+  }
+	
+  if(*((ulonglong*)args->args[0]) > LLONG_MAX) {
+    my_stpcpy(message, "Integer is too big");
+    return 1;
   }
 
   if (*((longlong*)args->args[0]) < 0)
