@@ -53,7 +53,12 @@ C_MODE_END;
 
 my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
 {
-  
+  if (args->arg_type[0] != INT_RESULT)
+  {
+     strcpy(message,"factorial() requires an integer");
+     return 1;
+  }
+	
   if (args->arg_count > 1)
   {
     my_stpcpy(message,"This function takes 1 argument");
