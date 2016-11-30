@@ -59,7 +59,7 @@ my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
      return 1;
   }
 	
-  if (args->arg_count > 1)
+  if (args->arg_count != 1)
   {
     my_stpcpy(message,"This function takes 1 argument");
     return 1;
