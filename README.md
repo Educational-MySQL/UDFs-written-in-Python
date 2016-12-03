@@ -3,7 +3,7 @@ MySQL UDFs written in Python
 
 # Compiled as:
 ```
-gcc $(/home/sh/REPOS/MYSQL_DEV_ACTIONS/mysql-5.7/mysql-server/5.7.16/bin/mysql_config --cflags) -fPIC -shared -o factorial.so factorial.cc
+gcc $(/home/sh/REPOS/MYSQL_DEV_ACTIONS/mysql-5.7/mysql-server/5.7.16/bin/mysql_config --cflags) -fPIC -shared -o factorial.so factorial.cc -std=c++11
 ```
 # Activated as:
 ```
