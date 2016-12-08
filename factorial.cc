@@ -70,9 +70,16 @@ my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
     my_stpcpy(message,"Negative number passed");
     return 1;
   }
-
-  if (args->arg_count)
-    args->arg_type[0]= INT_RESULT;		/* Force argument to int */
+ if (*((longlong*)args->args[0]) < 0)
+  {
+    my_stpcpy(message,"Negative number passed");
+    return 1;
+  }
+  if (*((longlong*)args->args[0]) > 20)
+  {
+    my_stpcpy(message,"Factorial function can't calculate numbers more than 20");
+    return 1;
+  }
 
   if (!(initid->ptr=(char*) malloc(sizeof(longlong))))
   {
