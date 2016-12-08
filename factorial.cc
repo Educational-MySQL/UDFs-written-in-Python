@@ -95,7 +95,10 @@ longlong factorial(UDF_INIT *initid MY_ATTRIBUTE((unused)), UDF_ARGS *args,
                   char *is_null MY_ATTRIBUTE((unused)),
                   char *error MY_ATTRIBUTE((unused)))
 {
+  extern char *opt_plugin_dir_ptr;
+
   ulonglong val=0;
+  
   if (args->arg_count)
   {
       
@@ -104,11 +107,18 @@ longlong factorial(UDF_INIT *initid MY_ATTRIBUTE((unused)), UDF_ARGS *args,
       //fprintf(stderr, "Value of args->args[0] -> %lld\n", val);
     
       
-
-      std::string command("python /home/sh/REPOS/MYSQL_DEV_ACTIONS/mysql-5.7/mysql-server/5.7.16/lib/plugin/factorial.py");
+      //fprintf(stderr, "%s\n", opt_plugin_dir_ptr);
+      std::string command("python");
+      std::string plugin_dir(opt_plugin_dir_ptr);
+      std::string python_file("factorial.py");
+      
+      //std::string command("python opt_plugin_dir_ptr/factorial.py");
 
       char str[10];
       sprintf(str, "%lld", val);
+      command.append(" ");
+      command.append(plugin_dir);
+      command.append(python_file);
       command.append(" ");
       command.append(str);
     
