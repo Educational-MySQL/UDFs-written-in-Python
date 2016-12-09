@@ -77,7 +77,7 @@ my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
   std::fstream file(pyfile.c_str());
   if (!file)
   {
-    my_stpcpy(message,"Can't open file factorial.py");
+    my_stpcpy(message,"Can't access 'factorial.py': No such file inside MySQL plugin directory.");
     return 1;
   }
 
