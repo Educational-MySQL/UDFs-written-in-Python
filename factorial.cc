@@ -5,7 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
-
+#include <fstream>
 
 #include <my_global.h>
 #include <my_sys.h>
