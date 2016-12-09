@@ -70,6 +70,16 @@ my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
     my_stpcpy(message,"Negative number passed");
     return 1;
   }
+  extern char *opt_plugin_dir_ptr;
+  std::string python_file("factorial.py");
+  std::string pyfile(opt_plugin_dir_ptr);
+  pyfile.append(python_file);
+  std::fstream file(pyfile.c_str());
+  if (!file)
+  {
+    my_stpcpy(message,"Can't open file factorial.py");
+    return 1;
+  }
 
   if (args->arg_count)
     args->arg_type[0]= INT_RESULT;		/* Force argument to int */
