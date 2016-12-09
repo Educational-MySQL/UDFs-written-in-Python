@@ -6,7 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <fstream>
-
+#include <sys/stat.h>
 #include <my_global.h>
 #include <my_sys.h>
 
@@ -75,9 +75,16 @@ my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
   std::string pyfile(opt_plugin_dir_ptr);
   pyfile.append(python_file);
   std::fstream file(pyfile.c_str());
+  struct stat buffer;
+	/*Check if file exists*/
+    if (stat (pyfile.c_str(), &buffer) != 0){
+    my_stpcpy(message,"Cannot access 'factorial.py': No such file inside MySQL plugin directory.");
+    return 1;
+    }
+  /*File exits but can't open.*/
   if (!file)
   {
-    my_stpcpy(message,"Can't access 'factorial.py': No such file inside MySQL plugin directory.");
+    my_stpcpy(message,"Can't access 'factorial.py': Check file permissions.");
     return 1;
   }
 
