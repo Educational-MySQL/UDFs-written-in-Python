@@ -70,7 +70,7 @@ my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
   i = system("which python");
   if (i == 256)
   {
-    my_stpcpy(message,"The program python is currently not installed");
+    my_stpcpy(message,"Could not find python, please check if it is installed and in your PATH env");
     return 1;
   }
 	//END Check python installed
