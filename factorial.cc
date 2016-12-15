@@ -5,8 +5,8 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
-
-
+#include <fstream>
+#include <sys/stat.h>
 #include <my_global.h>
 #include <my_sys.h>
 
@@ -46,11 +46,6 @@ longlong factorial(UDF_INIT *initid, UDF_ARGS *args, char *is_null,
 C_MODE_END;
 
 
-
-/*
- * 
- */
-
 my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
 {
   if (args->arg_count != 1)
@@ -68,6 +63,32 @@ my_bool factorial_init(UDF_INIT *initid, UDF_ARGS *args, char *message)
   if (*((longlong*)args->args[0]) < 0)
   {
     my_stpcpy(message,"Negative number passed");
+    return 1;
+  }
+  //Start Check if python installed
+  int i;
+  i = system("which python");
+  if (i == 256)
+  {
+    my_stpcpy(message,"Could not find python, please check if it is installed and in your PATH env");
+    return 1;
+  }
+	//END Check python installed
+  extern char *opt_plugin_dir_ptr;
+  std::string python_file("factorial.py");
+  std::string pyfile(opt_plugin_dir_ptr);
+  pyfile.append(python_file);
+  std::fstream file(pyfile.c_str());
+  struct stat buffer;
+	/*Check if file exists*/
+    if (stat (pyfile.c_str(), &buffer) != 0){
+    my_stpcpy(message,"Cannot access 'factorial.py': No such file inside MySQL plugin directory.");
+    return 1;
+    }
+  /*File exits but can't open.*/
+  if (!file)
+  {
+    my_stpcpy(message,"Can't access 'factorial.py': Check file permissions.");
     return 1;
   }
 
